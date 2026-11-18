@@ -44,3 +44,71 @@ mainNav.querySelectorAll("a").forEach((link) => {
   });
 });
 document.getElementById("year").textContent = new Date().getFullYear();
+
+// Supabase authentication — public publishable key only.
+const SUPABASE_URL = "https://zdrprvgahdlsvtqxslpl.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Q7B3X5jiuNeFOmbMZddqsg_6tC80C6T";
+const authMessage = document.getElementById("authMessage");
+const authForm = document.getElementById("authForm");
+const signupButton = document.getElementById("signupButton");
+const loginButton = document.getElementById("loginButton");
+const fullNameInput = document.getElementById("fullName");
+const memberArea = document.getElementById("memberArea");
+const memberWelcome = document.getElementById("memberWelcome");
+let supabaseClient = null;
+if (window.supabase && window.supabase.createClient) {
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+} else if (authMessage) {
+  authMessage.textContent = "Le service de connexion n'a pas pu être chargé. Vérifie ta connexion Internet et recharge la page.";
+}
+function showAuthMessage(message, isError = false) {
+  if (!authMessage) return;
+  authMessage.textContent = message;
+  authMessage.style.color = isError ? "#c0392b" : "#24764f";
+}
+function setAuthenticatedUser(user) {
+  if (!authForm || !memberArea) return;
+  authForm.hidden = !(!user);
+  memberArea.hidden = !user;
+  if (user) memberWelcome.textContent = "Bienvenue, " + (user.user_metadata?.full_name || user.email || "étudiant") + " ! Ton compte STUDY TECH est connecté.";
+}
+async function signUpStudent() {
+  if (!supabaseClient) return showAuthMessage("Supabase n'est pas disponible. Recharge la page.", true);
+  const fullName = fullNameInput.value.trim();
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+  if (!fullName) return showAuthMessage("Saisis ton nom complet pour continuer.", true);
+  if (password.length < 8) return showAuthMessage("Le mot de passe doit contenir au moins 8 caractères.", true);
+  signupButton.disabled = true;
+  showAuthMessage("Création de ton compte en cours…");
+  const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
+  signupButton.disabled = false;
+  if (error) return showAuthMessage(error.message, true);
+  if (data.session) { setAuthenticatedUser(data.user); showAuthMessage("Ton compte a été créé et tu es connecté."); }
+  else showAuthMessage("Compte créé. Consulte ta boîte e-mail pour confirmer ton adresse avant de te connecter.");
+}
+async function signInStudent() {
+  if (!supabaseClient) return showAuthMessage("Supabase n'est pas disponible. Recharge la page.", true);
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+  loginButton.disabled = true;
+  showAuthMessage("Connexion en cours…");
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  loginButton.disabled = false;
+  if (error) return showAuthMessage(error.message, true);
+  setAuthenticatedUser(data.user);
+  showAuthMessage("Connexion réussie.");
+}
+if (authForm) authForm.addEventListener("submit", (event) => { event.preventDefault(); signUpStudent(); });
+if (loginButton) loginButton.addEventListener("click", signInStudent);
+const logoutButton = document.getElementById("logoutButton");
+if (logoutButton) logoutButton.addEventListener("click", async () => {
+  const { error } = await supabaseClient.auth.signOut();
+  if (error) return showAuthMessage(error.message, true);
+  setAuthenticatedUser(null);
+  showAuthMessage("Tu es déconnecté.");
+});
+if (supabaseClient) {
+  supabaseClient.auth.getSession().then(({ data }) => setAuthenticatedUser(data.session?.user || null));
+  supabaseClient.auth.onAuthStateChange((_event, session) => setAuthenticatedUser(session?.user || null));
+}
