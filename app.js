@@ -26,9 +26,66 @@ async function toggleLesson(id,published){const {error}=await db.from("lessons")
 $("#createCourseForm").addEventListener("submit",async e=>{e.preventDefault();const feedback=$("#courseFeedback");feedback.textContent="Création…";const title=$("#newCourseTitle").value.trim();const slug=$("#newCourseSlug").value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");const {error}=await db.from("courses").insert({title,slug,category:$("#newCourseCategory").value.trim()||"Général",description:$("#newCourseDescription").value.trim(),created_by:currentUser.id,is_published:false});if(error){feedback.textContent="Erreur : "+error.message;return;}feedback.textContent="Cours créé en brouillon.";e.target.reset();await loadAdminData();});
 $("#createLessonForm").addEventListener("submit",async e=>{e.preventDefault();const feedback=$("#lessonFeedback"),courseId=$("#lessonCourse").value;if(!courseId){feedback.textContent="Choisissez un cours.";return;}feedback.textContent="Ajout…";const {count,error:countError}=await db.from("lessons").select("id",{count:"exact",head:true}).eq("course_id",courseId);if(countError){feedback.textContent="Erreur : "+countError.message;return;}const {error}=await db.from("lessons").insert({course_id:courseId,title:$("#newLessonTitle").value.trim(),content:$("#newLessonContent").value.trim(),position:(count||0)+1,is_published:$("#publishLesson").checked});if(error){feedback.textContent="Erreur : "+error.message;return;}feedback.textContent="Leçon ajoutée.";e.target.reset();await loadAdminData();});
 $("#logoutButton").addEventListener("click",async()=>{if(!db)return;const {error}=await db.auth.signOut();if(error){alert(error.message);return;}currentUser=null;$("#dashboard").hidden=true;$("#accountCard").hidden=false;});
-async function loadCourses(userId=null){const grid=$("#courseGrid");if(!db){grid.innerHTML='<div class="loading-card">Connexion à la base de données indisponible.</div>';return;}const {data,error}=await db.from("courses").select("id,title,slug,description,category").eq("is_published",true).order("created_at",{ascending:false});if(error){grid.innerHTML='<div class="loading-card">Impossible de charger les cours pour le moment.</div>';$("#courseStatus").textContent="Vérifiez la configuration Supabase et les règles d'accès.";return;}if(!data?.length){grid.innerHTML='<div class="loading-card">Les premiers cours arrivent bientôt. Revenez découvrir les nouvelles formations !</div>';return;}grid.innerHTML="";for(const course of data){const card=document.createElement("article");card.className="course-card";const tag=document.createElement("span");tag.className="course-tag";tag.textContent=(course.category||"FORMATION").toUpperCase();const title=document.createElement("h3");title.textContent=course.title;const desc=document.createElement("p");desc.textContent=course.description||"Découvrez ce cours et développez vos compétences.";const action=document.createElement("button");action.className="course-action";action.textContent=userId?"S'inscrire au cours →":"Se connecter pour apprendre →";action.addEventListener("click",()=>enroll(course.id,userId));card.append(tag,title,desc,action);grid.append(card);}}
+async function loadCourses(userId=null){
+  const grid=$("#courseGrid");
+  if(!db){grid.innerHTML='<div class="loading-card">Connexion à la base de données indisponible.</div>';return;}
+  grid.innerHTML='<div class="loading-card">Chargement des formations…</div>';
+  const {data,error}=await db.from("courses").select("id,title,slug,description,category").eq("is_published",true).order("created_at",{ascending:false});
+  if(error){
+    grid.innerHTML='<div class="loading-card">Impossible de charger les formations pour le moment.</div>';
+    $("#courseStatus").textContent="Vérifiez la configuration Supabase et les autorisations de lecture.";
+    console.error("Course loading failed",error);
+    return;
+  }
+  if(!data?.length){
+    grid.innerHTML='<div class="loading-card">Les premières formations arrivent bientôt. Revenez découvrir les nouveautés !</div>';
+    $("#courseStatus").textContent="";
+    return;
+  }
+  grid.innerHTML="";
+  for(const course of data){
+    const card=document.createElement("article");
+    card.className="course-card";
+    const tag=document.createElement("span");
+    tag.className="course-tag";
+    tag.textContent=(course.category||"FORMATION").toUpperCase();
+    const title=document.createElement("h3");
+    title.textContent=course.title;
+    const desc=document.createElement("p");
+    desc.textContent=course.description||"Découvrez ce cours et développez vos compétences.";
+    const meta=document.createElement("small");
+    meta.className="course-meta";
+    const {count,error:countError}=await db.from("lessons").select("id",{count:"exact",head:true}).eq("course_id",course.id).eq("is_published",true);
+    meta.textContent=countError?"Leçons disponibles":(count||0)+" leçon"+((count||0)>1?"s":"");
+    const action=document.createElement("button");
+    action.className="course-action";
+    action.textContent=userId?"S'inscrire au cours →":"Se connecter pour apprendre →";
+    action.addEventListener("click",()=>enroll(course.id,userId));
+    card.append(tag,title,desc,meta,action);
+    grid.append(card);
+  }
+  $("#courseStatus").textContent=data.length+" formation"+(data.length>1?"s":"")+" disponible"+(data.length>1?"s":"")+" gratuitement.";
+}
 async function enroll(courseId,userId){if(!userId){openAuth("login");return;}const {error}=await db.from("enrollments").insert({user_id:userId,course_id:courseId});if(error&&error.code!=="23505"){alert(error.message);return;}alert(error?"Vous êtes déjà inscrit à ce cours.":"Inscription réussie !");await showMember(currentUser);}
-function init(){if(!db){$("#courseGrid").innerHTML='<div class="loading-card">La plateforme de cours sera disponible après configuration de la base de données.</div>';return;}db.auth.onAuthStateChange((_event,session)=>{if(session?.user){showMember(session.user);}else{currentUser=null;$("#dashboard").hidden=true;$("#accountCard").hidden=false;loadCourses();}});}
+function init(){
+  if(!db){
+    $("#courseGrid").innerHTML='<div class="loading-card">La plateforme de cours sera disponible après configuration de la base de données.</div>';
+    return;
+  }
+  db.auth.onAuthStateChange((_event,session)=>{
+    Promise.resolve().then(async()=>{
+      if(session?.user){
+        await loadCourses(session.user.id);
+        await showMember(session.user);
+      }else{
+        currentUser=null;
+        $("#dashboard").hidden=true;
+        $("#accountCard").hidden=false;
+        await loadCourses();
+      }
+    });
+  });
+}
 init();
 
 
