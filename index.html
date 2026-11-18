@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <script src="app.js" defer></script>
+  <script type="module" src="/app.js"></script>
 </head>
 <body>
   <div class="announcement"><span class="announcement-dot"></span><span data-i18n="announcement">L'apprentissage doit être accessible à tous.</span></div>
@@ -28,8 +28,8 @@
     </nav>
     <div class="header-actions">
       <button class="language-switch" id="languageSwitch" type="button" aria-label="Switch language">EN</button>
-      <a class="button button-small button-outline" href="#signup" data-i18n="login">Connexion</a>
-      <a class="button button-small button-primary" href="#signup" data-i18n="join">S'inscrire</a>
+      <a class="button button-small button-outline" href="#signup" data-auth-open="login" data-i18n="login">Connexion</a>
+      <a class="button button-small button-primary" href="#signup" data-auth-open="signup" data-i18n="join">S'inscrire</a>
     </div>
   </header>
 
@@ -93,6 +93,30 @@
     </section>
   </main>
 
+  <section class="auth-modal" id="authModal" hidden aria-labelledby="authTitle" aria-modal="true" role="dialog">
+    <div class="auth-backdrop" data-auth-close></div>
+    <div class="auth-dialog">
+      <button class="auth-close" type="button" data-auth-close aria-label="Close">×</button>
+      <div class="auth-brand">ST<span>UDY TECH</span></div>
+      <h2 id="authTitle" data-i18n="authWelcome">Bienvenue sur STUDY TECH</h2>
+      <p class="auth-intro" data-i18n="authIntro">Crée ton compte gratuit ou connecte-toi.</p>
+      <div class="auth-tabs" role="tablist">
+        <button type="button" class="auth-tab active" data-auth-mode="login" data-i18n="login">Connexion</button>
+        <button type="button" class="auth-tab" data-auth-mode="signup" data-i18n="join">Inscription</button>
+      </div>
+      <form id="authForm" novalidate>
+        <label id="fullNameLabel" for="authFullName" data-i18n="fullNameLabel" hidden>Nom complet</label>
+        <input id="authFullName" name="fullName" type="text" autocomplete="name" maxlength="100" placeholder="Nom complet" hidden>
+        <label for="authEmail" data-i18n="emailLabel">Adresse e-mail</label>
+        <input id="authEmail" name="email" type="email" autocomplete="email" maxlength="254" required placeholder="exemple@email.com">
+        <label for="authPassword" data-i18n="passwordLabel">Mot de passe</label>
+        <input id="authPassword" name="password" type="password" autocomplete="current-password" minlength="8" maxlength="72" required placeholder="8 caractères minimum">
+        <p class="auth-feedback" id="authFeedback" role="status" aria-live="polite"></p>
+        <button class="button button-primary button-large auth-submit" id="authSubmit" type="submit" data-i18n="login">Connexion</button>
+      </form>
+      <p class="auth-legal" data-i18n="authSecurity">Tes informations sont protégées. Ne partage jamais ton mot de passe.</p>
+    </div>
+  </section>
   <footer class="site-footer" id="contact"><div class="footer-main section-shell"><a class="brand brand-footer" href="#home"><span class="brand-mark">S<span>T</span></span><span class="brand-name">STUDY<span>TECH</span></span></a><p data-i18n="footerText">Apprendre, progresser et construire son avenir.</p><div class="footer-links"><a href="#home" data-i18n="navHome">Accueil</a><a href="#courses" data-i18n="navCourses">Cours</a><a href="#about" data-i18n="navAbout">À propos</a><a href="mailto:contact@studytech.example" data-i18n="navContact">Contact</a></div></div><div class="footer-bottom section-shell"><span>© <span id="year"></span> STUDY TECH. <span data-i18n="rights">Tous droits réservés.</span></span><span data-i18n="footerMade">Conçu pour apprendre sans limites.</span></div></footer>
 </body>
 </html>
