@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -89,7 +90,29 @@
 
     <section class="signup-section section-shell" id="signup">
       <div class="signup-copy"><div class="eyebrow"><span class="eyebrow-line"></span><span data-i18n="signupEyebrow">TON PARCOURS COMMENCE ICI</span></div><h2 data-i18n="signupTitle">Prêt à apprendre<br><span>quelque chose de nouveau ?</span></h2><p data-i18n="signupText">L'inscription sera ouverte à tous. L'espace membre sera activé après la mise en place du système sécurisé de comptes.</p></div>
-      <div class="signup-panel"><div class="panel-icon">✳</div><h3 data-i18n="signupPanelTitle">Bientôt, ton espace d'apprentissage.</h3><p data-i18n="signupPanelText">Nous préparons une expérience simple pour suivre tes cours et retrouver tes ressources.</p><a class="button button-primary button-large" href="mailto:contact@studytech.example?subject=STUDY%20TECH" data-i18n="contactUs">Nous contacter <span>↗</span></a><span class="panel-note" data-i18n="noAccountYet">Les comptes ne sont pas encore activés.</span></div>
+      <div class="signup-panel" id="authPanel">
+        <div class="panel-icon">✳</div>
+        <h3>Ton espace STUDY TECH</h3>
+        <p>Crée ton compte étudiant ou connecte-toi pour accéder à ton espace.</p>
+        <form id="authForm" style="display:grid;gap:12px">
+          <label for="fullName" style="font-size:11px;font-weight:700">Nom complet</label>
+          <input id="fullName" name="fullName" autocomplete="name" placeholder="Ton nom complet" style="width:100%;padding:13px;border:1px solid #dce4f0;border-radius:7px" />
+          <label for="authEmail" style="font-size:11px;font-weight:700">Adresse e-mail</label>
+          <input id="authEmail" name="email" type="email" autocomplete="email" required placeholder="nom@exemple.com" style="width:100%;padding:13px;border:1px solid #dce4f0;border-radius:7px" />
+          <label for="authPassword" style="font-size:11px;font-weight:700">Mot de passe</label>
+          <input id="authPassword" name="password" type="password" autocomplete="current-password" minlength="8" required placeholder="8 caractères minimum" style="width:100%;padding:13px;border:1px solid #dce4f0;border-radius:7px" />
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="button button-primary button-large" type="submit" id="signupButton">Créer mon compte</button>
+            <button class="button button-outline button-large" type="button" id="loginButton">Se connecter</button>
+          </div>
+        </form>
+        <div id="authMessage" role="status" aria-live="polite" style="font-size:11px;line-height:1.7;margin-top:14px;color:#71809a"></div>
+        <div id="memberArea" hidden style="margin-top:14px">
+          <p id="memberWelcome"></p>
+          <button class="button button-outline button-large" type="button" id="logoutButton">Se déconnecter</button>
+        </div>
+        <span class="panel-note">Inscription ouverte à tous. Les cours restent gratuits.</span>
+      </div><h3 data-i18n="signupPanelTitle">Bientôt, ton espace d'apprentissage.</h3><p data-i18n="signupPanelText">Nous préparons une expérience simple pour suivre tes cours et retrouver tes ressources.</p><a class="button button-primary button-large" href="mailto:contact@studytech.example?subject=STUDY%20TECH" data-i18n="contactUs">Nous contacter <span>↗</span></a><span class="panel-note" data-i18n="noAccountYet">Les comptes ne sont pas encore activés.</span></div>
     </section>
   </main>
 
