@@ -144,7 +144,7 @@ async function loadCourses(userId=null){
   }
   $("#courseStatus").textContent=data.length+" formation"+(data.length>1?"s":"")+" disponible"+(data.length>1?"s":"")+" gratuitement.";
 }
-async function enroll(courseId,userId){if(!userId){openAuth("login");return;}const {error}=await db.from("enrollments").insert({user_id:userId,course_id:courseId});if(error&&error.code!=="23505"){alert(error.message);return;}alert(error?"Vous êtes déjà inscrit à ce cours.":"Inscription réussie !");await showMember(currentUser);}
+async function enroll(courseId,userId){if(!userId){openAuth("login");return;}const {error}=await db.from("enrollments").insert({user_id:userId,course_id:courseId});if(error&&error.code!=="23505"){alert(error.message);return;}alert(error?"Vous êtes déjà inscrit à ce cours.":"Inscription réussie !");await loadStudentCourses(userId);}
 function init(){
   if(!db){
     $("#courseGrid").innerHTML='<div class="loading-card">La plateforme de cours sera disponible après configuration de la base de données.</div>';
