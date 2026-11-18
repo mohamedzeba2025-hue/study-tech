@@ -1,3 +1,5 @@
+import { initializeAuth } from "./auth.js";
+
 const translations = {
   fr: {
     announcement:"L'apprentissage doit être accessible à tous.",navHome:"Accueil",navCourses:"Cours",navAbout:"À propos",navContact:"Contact",login:"Connexion",join:"S'inscrire",
@@ -44,3 +46,5 @@ mainNav.querySelectorAll("a").forEach((link) => {
   });
 });
 document.getElementById("year").textContent = new Date().getFullYear();
+
+initializeAuth();
