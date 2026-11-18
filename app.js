@@ -18,8 +18,83 @@ function say(text,error=false){message.textContent=text;message.style.color=erro
 form.addEventListener("submit",async e=>{e.preventDefault();if(!db)return say("Le service de connexion est indisponible. Rechargez la page.",true);const email=$("#authEmail").value.trim(),password=$("#authPassword").value;const submit=$("#authSubmit");submit.disabled=true;say(authMode==="signup"?"Création du compte…":"Connexion…");try{let result;if(authMode==="signup"){const full_name=$("#fullName").value.trim();if(!full_name)throw new Error("Veuillez saisir votre nom complet.");result=await db.auth.signUp({email,password,options:{data:{full_name}}});}else{result=await db.auth.signInWithPassword({email,password});}if(result.error)throw result.error;if(authMode==="signup"&&!result.data.session){say("Compte créé. Vérifiez votre boîte e-mail pour confirmer votre adresse.");}else{currentUser=result.data.user;closeAuth();}}catch(err){say(err.message||"Une erreur est survenue.",true);}finally{submit.disabled=false;}});
 
 async function showMember(user){if(currentUser?.id===user.id&&!$("#dashboard").hidden)return;currentUser=user;$("#accountCard").hidden=true;$("#dashboard").hidden=false;let name=user.user_metadata?.full_name||user.email||"étudiant";const {data:profile,error}=await db.from("profiles").select("full_name,role").eq("id",user.id).maybeSingle();if(error){console.error("Profile load failed",error);$("#myCourses").textContent="Impossible de charger le profil. Vérifiez les règles d'accès Supabase.";return;}if(profile?.full_name)name=profile.full_name;$("#studentName").textContent=name;const isAdmin=profile?.role==="admin";$("#adminPanel").hidden=!isAdmin;$("#dashboard").dataset.role=isAdmin?"admin":"student";if(isAdmin){$("#myCourses").textContent="Votre espace administrateur est prêt. Gérez les cours et les leçons ci-dessous.";await loadAdminData();}else{await loadStudentCourses(user.id);}}
-async function loadStudentCourses(userId){const target=$("#myCourses");target.textContent="Chargement de vos cours…";const {data:rows,error}=await db.from("enrollments").select("course_id,courses(id,title,description)").eq("user_id",userId).order("enrolled_at",{ascending:false});if(error){target.textContent="Impossible de charger vos inscriptions.";return;}if(!rows?.length){target.textContent="Vous n'êtes inscrit à aucun cours pour le moment. Explorez les cours gratuits ci-dessus.";return;}target.innerHTML="";for(const row of rows){const course=row.courses;if(!course)continue;const card=document.createElement("div");card.className="student-course";const info=document.createElement("div");const title=document.createElement("strong");title.textContent=course.title;const desc=document.createElement("small");desc.textContent=course.description||"Votre cours";info.append(title,desc);const lessonsWrap=document.createElement("div");lessonsWrap.className="lesson-list";const {data:lessons,error:lessonError}=await db.from("lessons").select("id,title,position,content").eq("course_id",course.id).eq("is_published",true).order("position");if(lessonError){const errorText=document.createElement("div");errorText.className="lesson-item";errorText.textContent="Les leçons ne sont pas disponibles.";lessonsWrap.append(errorText);}else if(!lessons?.length){const empty=document.createElement("div");empty.className="lesson-item";empty.textContent="Les leçons seront bientôt disponibles.";lessonsWrap.append(empty);}else{const {data:progress}=await db.from("lesson_progress").select("lesson_id,completed").eq("user_id",userId).in("lesson_id",lessons.map(l=>l.id));const done=new Set((progress||[]).filter(p=>p.completed).map(p=>p.lesson_id));for(const lesson of lessons){const line=document.createElement("div");line.className="lesson-item";const label=document.createElement("span");label.textContent=(done.has(lesson.id)?"✓ ":"○ ")+lesson.title;const button=document.createElement("button");button.className="lesson-link";button.textContent=done.has(lesson.id)?"Terminée":"Marquer terminée";button.disabled=done.has(lesson.id);button.addEventListener("click",()=>completeLesson(lesson.id,userId,button,label));const reader=document.createElement("details");reader.className="lesson-reader";const summary=document.createElement("summary");summary.textContent="Lire la leçon";const body=document.createElement("div");body.className="lesson-reader-content";body.textContent=lesson.content||"Le contenu de cette leçon sera bientôt disponible.";reader.append(summary,body);line.append(label,button);lessonsWrap.append(line,reader);}}card.append(info);target.append(card,lessonsWrap);}}
-async function completeLesson(lessonId,userId,button,label){button.disabled=true;const {error}=await db.from("lesson_progress").upsert({user_id:userId,lesson_id:lessonId,completed:true,completed_at:new Date().toISOString(),updated_at:new Date().toISOString()},{onConflict:"user_id,lesson_id"});if(error){button.disabled=false;alert("Impossible d'enregistrer la progression : "+error.message);return;}button.textContent="Terminée";label.textContent="✓ "+label.textContent.replace(/^○ /,"");}
+async function loadStudentCourses(userId){
+  const target=$("#myCourses");
+  target.textContent="Chargement de votre espace d’apprentissage…";
+  const {data:rows,error}=await db.from("enrollments").select("course_id,courses(id,title,description)").eq("user_id",userId).order("enrolled_at",{ascending:false});
+  if(error){target.textContent="Impossible de charger vos inscriptions. Réessayez dans quelques instants.";console.error("Enrollment loading failed",error);return;}
+  const enrolled=(rows||[]).filter(row=>row.courses);
+  if(!enrolled.length){target.innerHTML='<div class="student-empty"><strong>Votre parcours commence ici.</strong><p>Vous n’êtes inscrit à aucun cours pour le moment. Explorez les formations gratuites et choisissez votre premier cours.</p><a href="#courses" class="student-explore">Découvrir les cours →</a></div>';return;}
+  target.innerHTML="";
+  let totalLessons=0,totalDone=0;
+  const summaries=[];
+  for(const row of enrolled){
+    const course=row.courses;
+    const card=document.createElement("article");
+    card.className="student-course student-course-card";
+    const heading=document.createElement("div");heading.className="student-course-heading";
+    const info=document.createElement("div");
+    const title=document.createElement("strong");title.textContent=course.title;
+    const desc=document.createElement("small");desc.textContent=course.description||"Votre formation STUDY TECH";
+    info.append(title,desc);
+    const badge=document.createElement("span");badge.className="student-course-badge";badge.textContent="FORMATION";
+    heading.append(info,badge);
+    const {data:lessons,error:lessonError}=await db.from("lessons").select("id,title,position,content").eq("course_id",course.id).eq("is_published",true).order("position");
+    const lessonRows=lessonError?[]:(lessons||[]);
+    const {data:progress,error:progressError}=lessonRows.length?await db.from("lesson_progress").select("lesson_id,completed").eq("user_id",userId).in("lesson_id",lessonRows.map(l=>l.id)):{data:[],error:null};
+    const done=new Set(progressError?[]:(progress||[]).filter(p=>p.completed).map(p=>p.lesson_id));
+    const doneCount=done.size,total=lessonRows.length,percent=total?Math.round(doneCount/total*100):0;
+    totalLessons+=total;totalDone+=doneCount;
+    const progressArea=document.createElement("div");progressArea.className="course-progress";
+    const progressTop=document.createElement("div");progressTop.className="course-progress-top";
+    const progressLabel=document.createElement("span");progressLabel.textContent="Votre progression";
+    const progressText=document.createElement("strong");progressText.textContent=total?percent+" %":"À venir";
+    progressTop.append(progressLabel,progressText);
+    const track=document.createElement("div");track.className="course-progress-track";track.setAttribute("role","progressbar");track.setAttribute("aria-valuemin","0");track.setAttribute("aria-valuemax","100");track.setAttribute("aria-valuenow",String(percent));
+    const fill=document.createElement("span");fill.className="course-progress-fill";fill.style.width=percent+"%";track.append(fill);
+    const count=document.createElement("small");count.className="course-progress-count";count.textContent=total?doneCount+" leçon"+(doneCount>1?"s":"")+" terminée"+(doneCount>1?"s":"")+" sur "+total:"Aucune leçon publiée pour le moment";
+    progressArea.append(progressTop,track,count);
+    const lessonsWrap=document.createElement("div");lessonsWrap.className="student-lessons";
+    const lessonsTitle=document.createElement("h4");lessonsTitle.textContent="Contenu du cours";lessonsWrap.append(lessonsTitle);
+    if(lessonError){const err=document.createElement("p");err.className="student-empty-note";err.textContent="Les leçons ne sont pas disponibles pour le moment.";lessonsWrap.append(err);}
+    else if(!total){const empty=document.createElement("p");empty.className="student-empty-note";empty.textContent="Les leçons seront bientôt disponibles.";lessonsWrap.append(empty);}
+    else{
+      for(const lesson of lessonRows){
+        const item=document.createElement("article");item.className="student-lesson";
+        const line=document.createElement("div");line.className="student-lesson-row";
+        const label=document.createElement("span");label.className="student-lesson-title";label.textContent=(done.has(lesson.id)?"✓ ":"○ ")+lesson.title;
+        if(done.has(lesson.id))label.classList.add("is-complete");
+        const actions=document.createElement("div");actions.className="student-lesson-actions";
+        const reader=document.createElement("details");reader.className="lesson-reader";
+        const summary=document.createElement("summary");summary.textContent="Lire la leçon";
+        const body=document.createElement("div");body.className="lesson-reader-content";body.textContent=lesson.content||"Le contenu de cette leçon sera bientôt disponible.";
+        reader.append(summary,body);
+        const button=document.createElement("button");button.className="lesson-link";button.textContent=done.has(lesson.id)?"Terminée":"Marquer terminée";button.disabled=done.has(lesson.id);
+        button.addEventListener("click",()=>completeLesson(lesson.id,userId,button,label,{progressText,fill,track,count,doneCount,total}));
+        actions.append(reader,button);line.append(label,actions);item.append(line);lessonsWrap.append(item);
+      }
+    }
+    card.append(heading,progressArea,lessonsWrap);target.append(card);
+    summaries.push({title:course.title,done:doneCount,total});
+  }
+  const overall=document.createElement("div");overall.className="student-overview";
+  const overallTitle=document.createElement("strong");overallTitle.textContent="Bilan de votre apprentissage";
+  const overallText=document.createElement("span");overallText.textContent=totalDone+" / "+totalLessons+" leçon"+(totalLessons>1?"s":"")+" terminée"+(totalLessons>1?"s":"");
+  const overallTrack=document.createElement("div");overallTrack.className="course-progress-track";
+  const overallFill=document.createElement("span");overallFill.className="course-progress-fill";overallFill.style.width=(totalLessons?Math.round(totalDone/totalLessons*100):0)+"%";overallTrack.append(overallFill);
+  overall.append(overallTitle,overallText,overallTrack);target.prepend(overall);
+}
+async function completeLesson(lessonId,userId,button,label,progress){
+  button.disabled=true;button.textContent="Enregistrement…";
+  const {error}=await db.from("lesson_progress").upsert({user_id:userId,lesson_id:lessonId,completed:true,completed_at:new Date().toISOString(),updated_at:new Date().toISOString()},{onConflict:"user_id,lesson_id"});
+  if(error){button.disabled=false;button.textContent="Marquer terminée";alert("Impossible d'enregistrer la progression : "+error.message);return;}
+  button.textContent="Terminée";label.textContent="✓ "+label.textContent.replace(/^○ /,"");label.classList.add("is-complete");
+  if(progress){
+    const next=progress.doneCount+1,percent=Math.round(next/progress.total*100);
+    progress.progressText.textContent=percent+" %";progress.fill.style.width=percent+"%";progress.track.setAttribute("aria-valuenow",String(percent));
+    progress.count.textContent=next+" leçon"+(next>1?"s":"")+" terminée"+(next>1?"s":"")+" sur "+progress.total;
+  }
+}
 async function loadAdminData(){const {data:courses,error}=await db.from("courses").select("id,title,slug,description,category,is_published").order("created_at",{ascending:false});const list=$("#adminCourseList"),select=$("#lessonCourse");list.innerHTML="";select.innerHTML='<option value="">Choisir un cours</option>';if(error){list.textContent="Erreur de chargement : "+error.message;return;}if(!courses?.length){list.innerHTML='<div class="admin-empty">Aucun cours pour le moment. Créez votre premier cours ci-dessus.</div>';return;}for(const course of courses){const option=document.createElement("option");option.value=course.id;option.textContent=course.title;select.append(option);const row=document.createElement("div");row.className="admin-row";const info=document.createElement("div");const title=document.createElement("strong");title.textContent=course.title;const meta=document.createElement("small");meta.textContent=(course.category||"Général")+" · "+(course.is_published?"Publié":"Brouillon");info.append(title,meta);const actions=document.createElement("div");actions.className="admin-row-actions";const toggle=document.createElement("button");toggle.textContent=course.is_published?"Dépublier":"Publier";toggle.addEventListener("click",()=>toggleCourse(course.id,!course.is_published));actions.append(toggle);row.append(info,actions);list.append(row);const {data:lessons}=await db.from("lessons").select("id,title,is_published,position").eq("course_id",course.id).order("position");if(lessons?.length){const lessonList=document.createElement("div");lessonList.className="lesson-list";for(const lesson of lessons){const line=document.createElement("div");line.className="lesson-item";const label=document.createElement("span");label.textContent=lesson.title+" · "+(lesson.is_published?"Publié":"Brouillon");const button=document.createElement("button");button.className="lesson-link";button.textContent=lesson.is_published?"Dépublier":"Publier";button.addEventListener("click",()=>toggleLesson(lesson.id,!lesson.is_published));line.append(label,button);lessonList.append(line);}list.append(lessonList);}}}
 async function toggleCourse(id,published){const {error}=await db.from("courses").update({is_published:published,updated_at:new Date().toISOString()}).eq("id",id);if(error){alert("Modification impossible : "+error.message);return;}await loadAdminData();await loadCourses(currentUser?.id);}
 async function toggleLesson(id,published){const {error}=await db.from("lessons").update({is_published:published,updated_at:new Date().toISOString()}).eq("id",id);if(error){alert("Modification impossible : "+error.message);return;}await loadAdminData();}
