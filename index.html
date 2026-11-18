@@ -1,121 +1,39 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#071a3d">
-  <meta name="description" content="STUDY TECH — apprendre, progresser et construire son avenir grâce à des ressources éducatives accessibles.">
-  <title>STUDY TECH — Learn without limits</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#030b1b">
+  <meta name="description" content="STUDY TECH — des cours gratuits pour apprendre le code et développer ses compétences numériques.">
+  <title>STUDY TECH — Apprendre. Pratiquer. Réussir.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="app.js" defer></script>
 </head>
 <body>
-  <div class="announcement"><span class="announcement-dot"></span><span data-i18n="announcement">L'apprentissage doit être accessible à tous.</span></div>
-  <header class="site-header">
-    <a class="brand" href="#home" aria-label="STUDY TECH home">
-      <span class="brand-mark">S<span>T</span></span>
-      <span class="brand-name">STUDY<span>TECH</span></span>
-    </a>
-    <button class="menu-toggle" id="menuToggle" aria-label="Open navigation" aria-expanded="false"><span></span><span></span><span></span></button>
-    <nav class="main-nav" id="mainNav">
-      <a href="#home" data-i18n="navHome">Accueil</a>
-      <a href="#courses" data-i18n="navCourses">Cours</a>
-      <a href="#about" data-i18n="navAbout">À propos</a>
-      <a href="#contact" data-i18n="navContact">Contact</a>
-    </nav>
-    <div class="header-actions">
-      <button class="language-switch" id="languageSwitch" type="button" aria-label="Switch language">EN</button>
-      <a class="button button-small button-outline" href="#signup" data-i18n="login">Connexion</a>
-      <a class="button button-small button-primary" href="#signup" data-i18n="join">S'inscrire</a>
-    </div>
-  </header>
-
-  <main>
-    <section class="hero section-shell" id="home">
-      <div class="hero-copy">
-        <div class="eyebrow"><span class="eyebrow-line"></span><span data-i18n="eyebrow">LA TECHNOLOGIE AU SERVICE DU SAVOIR</span></div>
-        <h1 data-i18n="heroTitle">Apprends aujourd'hui.<br><span>Construis demain.</span></h1>
-        <p class="hero-description" data-i18n="heroText">Développe tes compétences, découvre de nouvelles idées et avance à ton rythme avec une plateforme pensée pour apprendre autrement.</p>
-        <div class="hero-actions">
-          <a class="button button-primary button-large" href="#courses"><span data-i18n="explore">Explorer les cours</span><span aria-hidden="true">↗</span></a>
-          <a class="text-link" href="#about"><span data-i18n="discover">Découvrir STUDY TECH</span><span aria-hidden="true">→</span></a>
-        </div>
-        <div class="hero-proof"><div class="proof-avatars"><span>M</span><span>S</span><span>A</span></div><p data-i18n="proof">Un espace pour apprendre, partager et progresser.</p></div>
-      </div>
-      <div class="hero-art" aria-label="Illustration of online learning">
-        <div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div>
-        <div class="art-glow"></div>
-        <div class="learning-card card-main">
-          <div class="card-top"><span class="card-icon">✦</span><span class="live-pill"><i></i><span data-i18n="learning">EN APPRENTISSAGE</span></span></div>
-          <div class="book-illustration"><div class="book book-back"></div><div class="book book-front"><span>ST</span></div><div class="spark spark-one">✦</div><div class="spark spark-two">✧</div></div>
-          <p class="card-caption" data-i18n="cardCaption">Ton prochain chapitre commence ici.</p>
-          <div class="progress-track"><span></span></div>
-          <div class="progress-meta"><span data-i18n="progress">Ton parcours</span><strong>01 / 05</strong></div>
-        </div>
-        <div class="floating-note note-top"><span class="note-icon">⌘</span><span data-i18n="noteTech">Compétences numériques</span></div>
-        <div class="floating-note note-bottom"><span class="note-check">✓</span><span data-i18n="noteFree">Apprendre librement</span></div>
-        <div class="art-cross cross-one">+</div><div class="art-cross cross-two">+</div>
-      </div>
-    </section>
-
-    <section class="stats-strip section-shell" aria-label="Platform principles">
-      <div class="stat-item"><span class="stat-number">01</span><div><strong data-i18n="statOneTitle">Accessible</strong><p data-i18n="statOneText">Un apprentissage ouvert à tous</p></div></div>
-      <div class="stat-item"><span class="stat-number">02</span><div><strong data-i18n="statTwoTitle">Flexible</strong><p data-i18n="statTwoText">Sur mobile et ordinateur</p></div></div>
-      <div class="stat-item"><span class="stat-number">03</span><div><strong data-i18n="statThreeTitle">Évolutif</strong><p data-i18n="statThreeText">Apprendre à son propre rythme</p></div></div>
-    </section>
-
-    <section class="courses-section section-shell" id="courses">
-      <div class="section-heading">
-        <div><div class="eyebrow"><span class="eyebrow-line"></span><span data-i18n="coursesEyebrow">APPRENDS DE NOUVELLES CHOSES</span></div><h2 data-i18n="coursesTitle">Explore nos domaines<br><span>d'apprentissage.</span></h2></div>
-        <p data-i18n="coursesIntro">Des bases essentielles aux compétences de demain, découvre les sujets qui t'aideront à aller plus loin.</p>
-      </div>
-      <div class="course-grid">
-        <article class="course-card course-blue"><div class="course-icon">⌘</div><span class="course-index">01 / TECH</span><h3 data-i18n="courseOne">Informatique & technologie</h3><p data-i18n="courseOneText">Comprendre le numérique et maîtriser les outils technologiques.</p><a href="#signup" class="course-link" data-i18n="learnMore">Découvrir le domaine <span>↗</span></a></article>
-        <article class="course-card course-light"><div class="course-icon">⌁</div><span class="course-index">02 / WEB</span><h3 data-i18n="courseTwo">Développement web</h3><p data-i18n="courseTwoText">Découvrir comment imaginer et créer des expériences sur le web.</p><a href="#signup" class="course-link" data-i18n="learnMore">Découvrir le domaine <span>↗</span></a></article>
-        <article class="course-card course-dark"><div class="course-icon">◈</div><span class="course-index">03 / DIGITAL</span><h3 data-i18n="courseThree">Compétences numériques</h3><p data-i18n="courseThreeText">Renforcer les compétences utiles dans le monde connecté.</p><a href="#signup" class="course-link" data-i18n="learnMore">Découvrir le domaine <span>↗</span></a></article>
-      </div>
-      <p class="course-disclaimer" data-i18n="courseDisclaimer">Les domaines ci-dessus présentent les catégories prévues. Les cours détaillés seront ajoutés progressivement.</p>
-    </section>
-
-    <section class="about-section" id="about">
-      <div class="about-inner section-shell">
-        <div class="about-symbol"><div class="symbol-ring"></div><div class="symbol-core">ST<span>.</span></div><span class="symbol-label">LEARN / CREATE / GROW</span></div>
-        <div class="about-copy"><div class="eyebrow eyebrow-light"><span class="eyebrow-line"></span><span data-i18n="aboutEyebrow">NOTRE VISION</span></div><h2 data-i18n="aboutTitle">Le savoir ouvre<br>de nouvelles portes.</h2><p data-i18n="aboutText">STUDY TECH est un espace d'apprentissage en construction, avec une ambition simple : rendre les connaissances et les ressources éducatives plus accessibles, pour permettre à chacun de développer son potentiel.</p><a class="button button-white" href="#signup"><span data-i18n="joinCommunity">Rejoindre la communauté</span><span>↗</span></a></div>
-      </div>
-    </section>
-
-    <section class="signup-section section-shell" id="signup">
-      <div class="signup-copy"><div class="eyebrow"><span class="eyebrow-line"></span><span data-i18n="signupEyebrow">TON PARCOURS COMMENCE ICI</span></div><h2 data-i18n="signupTitle">Prêt à apprendre<br><span>quelque chose de nouveau ?</span></h2><p data-i18n="signupText">L'inscription sera ouverte à tous. L'espace membre sera activé après la mise en place du système sécurisé de comptes.</p></div>
-      <div class="signup-panel" id="authPanel">
-        <div class="panel-icon">✳</div>
-        <h3>Ton espace STUDY TECH</h3>
-        <p>Crée ton compte étudiant ou connecte-toi pour accéder à ton espace.</p>
-        <form id="authForm" style="display:grid;gap:12px">
-          <label for="fullName" style="font-size:11px;font-weight:700">Nom complet</label>
-          <input id="fullName" name="fullName" autocomplete="name" placeholder="Ton nom complet" style="width:100%;padding:13px;border:1px solid #dce4f0;border-radius:7px" />
-          <label for="authEmail" style="font-size:11px;font-weight:700">Adresse e-mail</label>
-          <input id="authEmail" name="email" type="email" autocomplete="email" required placeholder="nom@exemple.com" style="width:100%;padding:13px;border:1px solid #dce4f0;border-radius:7px" />
-          <label for="authPassword" style="font-size:11px;font-weight:700">Mot de passe</label>
-          <input id="authPassword" name="password" type="password" autocomplete="current-password" minlength="8" required placeholder="8 caractères minimum" style="width:100%;padding:13px;border:1px solid #dce4f0;border-radius:7px" />
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="button button-primary button-large" type="submit" id="signupButton">Créer mon compte</button>
-            <button class="button button-outline button-large" type="button" id="loginButton">Se connecter</button>
-          </div>
-        </form>
-        <div id="authMessage" role="status" aria-live="polite" style="font-size:11px;line-height:1.7;margin-top:14px;color:#71809a"></div>
-        <div id="memberArea" hidden style="margin-top:14px">
-          <p id="memberWelcome"></p>
-          <button class="button button-outline button-large" type="button" id="logoutButton">Se déconnecter</button>
-        </div>
-        <span class="panel-note">Inscription ouverte à tous. Les cours restent gratuits.</span>
-      </div><h3 data-i18n="signupPanelTitle">Bientôt, ton espace d'apprentissage.</h3><p data-i18n="signupPanelText">Nous préparons une expérience simple pour suivre tes cours et retrouver tes ressources.</p><a class="button button-primary button-large" href="mailto:contact@studytech.example?subject=STUDY%20TECH" data-i18n="contactUs">Nous contacter <span>↗</span></a><span class="panel-note" data-i18n="noAccountYet">Les comptes ne sont pas encore activés.</span></div>
-    </section>
-  </main>
-
-  <footer class="site-footer" id="contact"><div class="footer-main section-shell"><a class="brand brand-footer" href="#home"><span class="brand-mark">S<span>T</span></span><span class="brand-name">STUDY<span>TECH</span></span></a><p data-i18n="footerText">Apprendre, progresser et construire son avenir.</p><div class="footer-links"><a href="#home" data-i18n="navHome">Accueil</a><a href="#courses" data-i18n="navCourses">Cours</a><a href="#about" data-i18n="navAbout">À propos</a><a href="mailto:contact@studytech.example" data-i18n="navContact">Contact</a></div></div><div class="footer-bottom section-shell"><span>© <span id="year"></span> STUDY TECH. <span data-i18n="rights">Tous droits réservés.</span></span><span data-i18n="footerMade">Conçu pour apprendre sans limites.</span></div></footer>
-</body>
-</html>
+<header class="header">
+  <a class="brand" href="#home" aria-label="STUDY TECH accueil"><span class="brand-icon">ST<span>.</span></span><span><b>STUDY <i>TECH</i></b><small>Apprendre · Pratiquer · Réussir</small></span></a>
+  <button class="menu-toggle" id="menuToggle" aria-label="Ouvrir le menu" aria-expanded="false">☰</button>
+  <nav id="mainNav"><a href="#home">Accueil</a><a href="#courses">Cours</a><a href="#about">À propos</a><a href="#contact">Contact</a></nav>
+  <div class="header-actions"><button class="lang" id="languageSwitch" type="button">EN</button><button class="btn btn-ghost" data-open-auth="login">Se connecter</button><button class="btn btn-primary" data-open-auth="signup">S'inscrire</button></div>
+</header>
+<main>
+<section class="hero wrap" id="home">
+ <div class="hero-copy"><div class="eyebrow"><span></span> TA RÉUSSITE COMMENCE ICI</div>
+  <h1>Apprenez le code,<br><em>construisez</em><br>votre avenir.</h1>
+  <p class="lead">Des cours de programmation modernes, accessibles à tous, pour développer vos compétences et réaliser vos projets.</p>
+  <div class="hero-cta"><a class="btn btn-primary btn-big" href="#courses">Commencer maintenant <b>→</b></a><a class="btn btn-outline btn-big" href="#about">Découvrir STUDY TECH</a></div>
+  <div class="hero-note"><span class="pulse"></span> Apprenez à votre rythme, où que vous soyez.</div>
+ </div>
+ <div class="hero-visual" aria-label="Illustration d'un espace de programmation"><div class="visual-glow"></div><div class="code-window"><div class="window-top"><span></span><span></span><span></span><small>study-tech / welcome.js</small></div><div class="code-lines"><p><i>01</i> <b>const</b> future = <strong>'yours';</strong></p><p><i>02</i> <b>function</b> <a>learnToCode</a>() {</p><p><i>03</i> &nbsp; <b>return</b> skills.<a>grow</a>();</p><p><i>04</i> }</p><p><i>05</i> <a>learnToCode</a>(); <span> // start today</span></p></div><div class="window-footer"><span>● Environnement d'apprentissage</span><b>HTML · CSS · JS</b></div></div><div class="float-chip chip-a">⌘ <span>Créer</span></div><div class="float-chip chip-b">✦ <span>Progresser</span></div><div class="orbit"></div></div>
+</section>
+<section class="benefits wrap" aria-label="Avantages"><article><span class="benefit-icon">&lt;/&gt;</span><div><b>Cours gratuits</b><small>Apprenez sans frais, pour tous.</small></div></article><article><span class="benefit-icon">▶</span><div><b>À votre rythme</b><small>Progressez selon votre disponibilité.</small></div></article><article><span class="benefit-icon">▣</span><div><b>Tous vos appareils</b><small>Ordinateur, tablette et mobile.</small></div></article><article><span class="benefit-icon">✧</span><div><b>Communauté active</b><small>Apprenez et partagez ensemble.</small></div></article></section>
+<section class="courses wrap" id="courses"><div class="section-head"><div><div class="eyebrow"><span></span> NOS FORMATIONS</div><h2>Des cours pour <em>aller plus loin.</em></h2><p>Choisissez un cours, apprenez les bases et mettez vos connaissances en pratique.</p></div><span class="free-label">100 % GRATUIT</span></div><div id="courseGrid" class="course-grid"><div class="loading-card">Chargement des cours…</div></div><p class="course-footnote" id="courseStatus" aria-live="polite"></p></section>
+<section class="about" id="about"><div class="wrap about-inner"><div><div class="eyebrow"><span></span> POURQUOI STUDY TECH ?</div><h2>Une plateforme pensée<br>pour <em>votre réussite.</em></h2><p>Nous croyons que chacun peut apprendre à coder. STUDY TECH met à disposition des ressources accessibles pour vous aider à développer vos compétences et réaliser vos idées.</p></div><div class="feature-grid"><article><b>01</b><h3>Des cours structurés</h3><p>Avancez étape par étape avec des contenus clairs.</p></article><article><b>02</b><h3>Apprentissage en ligne</h3><p>Étudiez quand vous voulez, depuis votre appareil.</p></article><article><b>03</b><h3>À votre rythme</h3><p>Reprenez les leçons et progressez à votre façon.</p></article><article><b>04</b><h3>Accès gratuit</h3><p>Tous les cours sont gratuits et ouverts à tous.</p></article></div></div></section>
+<section class="account wrap" id="account"><div><div class="eyebrow"><span></span> VOTRE ESPACE</div><h2>Prêt à commencer<br><em>votre parcours ?</em></h2><p>Créez votre compte pour vous inscrire aux cours et suivre votre progression.</p></div><div class="account-card" id="accountCard"><div class="account-symbol">ST<span>.</span></div><h3>Rejoignez STUDY TECH</h3><p>Un compte gratuit pour apprendre et progresser.</p><button class="btn btn-primary btn-full" data-open-auth="signup">Créer mon compte <b>→</b></button><button class="btn btn-ghost btn-full" data-open-auth="login">J'ai déjà un compte</button></div></section>
+<section class="dashboard wrap" id="dashboard" hidden><div class="section-head"><div><div class="eyebrow"><span></span> ESPACE ÉTUDIANT</div><h2>Bienvenue, <em id="studentName">étudiant</em>.</h2></div><button class="btn btn-ghost" id="logoutButton">Se déconnecter</button></div><div class="dashboard-panel"><h3>Mes cours</h3><div id="myCourses">Connectez-vous pour afficher vos inscriptions.</div></div></section>
+<section class="contact wrap" id="contact"><div><div class="eyebrow"><span></span> RESTONS CONNECTÉS</div><h2>Une question ? <em>Écrivons la suite.</em></h2><p>Pour toute question concernant la plateforme, contactez l'équipe STUDY TECH.</p></div><a class="btn btn-outline" href="mailto:contact@study-tech.example">Nous contacter ↗</a></section>
+</main>
+<footer><div class="wrap footer-main"><a class="brand" href="#home"><span class="brand-icon">ST<span>.</span></span><span><b>STUDY <i>TECH</i></b><small>Apprendre · Pratiquer · Réussir</small></span></a><div class="creator"><small>UNE INITIATIVE DE</small><strong>Mohamed Zeba <em>MZ</em></strong><span>Passionné de technologie et d'éducation</span></div><div class="footer-links"><a href="#home">Accueil</a><a href="#courses">Cours</a><a href="#about">À propos</a><a href="#contact">Contact</a></div></div><div class="wrap footer-bottom"><span>© <span id="year"></span> STUDY TECH · Tous droits réservés.</span><span>Créé par Mohamed Zeba MZ</span></div></footer>
+<div class="modal" id="authModal" aria-hidden="true"><div class="modal-backdrop" data-close-auth></div><section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="authTitle"><button class="modal-close" data-close-auth aria-label="Fermer">×</button><div class="eyebrow"><span></span> STUDY TECH</div><h2 id="authTitle">Créer un compte</h2><p id="authIntro">Rejoignez gratuitement notre communauté d'apprentissage.</p><form id="authForm"><label for="fullName">Nom complet</label><input id="fullName" autocomplete="name" placeholder="Votre nom" required><label for="authEmail">Adresse e-mail</label><input id="authEmail" type="email" autocomplete="email" placeholder="vous@exemple.com" required><label for="authPassword">Mot de passe</label><input id="authPassword" type="password" autocomplete="current-password" minlength="8" placeholder="8 caractères minimum" required><button class="btn btn-primary btn-full" id="authSubmit" type="submit">Créer mon compte</button></form><p class="auth-switch" id="authSwitch">Déjà inscrit ? <button type="button" data-switch-auth="login">Se connecter</button></p><p class="auth-message" id="authMessage" role="status" aria-live="polite"></p></section></div>
+</body></html>
