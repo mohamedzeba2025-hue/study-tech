@@ -27,6 +27,7 @@ async function loadStudentCourses(userId){
   if(!enrolled.length){target.innerHTML='<div class="student-empty"><strong>Votre parcours commence ici.</strong><p>Vous n’êtes inscrit à aucun cours pour le moment. Explorez les formations gratuites et choisissez votre premier cours.</p><a href="#courses" class="student-explore">Découvrir les cours →</a></div>';return;}
   target.innerHTML="";
   let totalLessons=0,totalDone=0;
+  let overallFillRef=null,overallTextRef=null;
   const summaries=[];
   for(const row of enrolled){
     const course=row.courses;
@@ -70,7 +71,7 @@ async function loadStudentCourses(userId){
         const body=document.createElement("div");body.className="lesson-reader-content";body.textContent=lesson.content||"Le contenu de cette leçon sera bientôt disponible.";
         reader.append(summary,body);
         const button=document.createElement("button");button.className="lesson-link";button.textContent=done.has(lesson.id)?"Terminée":"Marquer terminée";button.disabled=done.has(lesson.id);
-        button.addEventListener("click",()=>completeLesson(lesson.id,userId,button,label,{progressText,fill,track,count,doneCount,total}));
+        button.addEventListener("click",()=>completeLesson(lesson.id,userId,button,label,{progressText,fill,track,count,doneCount,total,refreshOverall:()=>{totalDone+=1;const pct=totalLessons?Math.round(totalDone/totalLessons*100):0;if(overallFillRef)overallFillRef.style.width=pct+"%";if(overallTextRef)overallTextRef.textContent=totalDone+" / "+totalLessons+" leçon"+(totalLessons>1?"s":"")+" terminée"+(totalLessons>1?"s":"");}}));
         actions.append(reader,button);line.append(label,actions);item.append(line);lessonsWrap.append(item);
       }
     }
@@ -79,9 +80,9 @@ async function loadStudentCourses(userId){
   }
   const overall=document.createElement("div");overall.className="student-overview";
   const overallTitle=document.createElement("strong");overallTitle.textContent="Bilan de votre apprentissage";
-  const overallText=document.createElement("span");overallText.textContent=totalDone+" / "+totalLessons+" leçon"+(totalLessons>1?"s":"")+" terminée"+(totalLessons>1?"s":"");
+  const overallText=document.createElement("span");overallText.textContent=totalDone+" / "+totalLessons+" leçon"+(totalLessons>1?"s":"")+" terminée"+(totalLessons>1?"s":"");overallTextRef=overallText;
   const overallTrack=document.createElement("div");overallTrack.className="course-progress-track";
-  const overallFill=document.createElement("span");overallFill.className="course-progress-fill";overallFill.style.width=(totalLessons?Math.round(totalDone/totalLessons*100):0)+"%";overallTrack.append(overallFill);
+  const overallFill=document.createElement("span");overallFill.className="course-progress-fill";overallFill.style.width=(totalLessons?Math.round(totalDone/totalLessons*100):0)+"%";overallFillRef=overallFill;overallTrack.append(overallFill);
   overall.append(overallTitle,overallText,overallTrack);target.prepend(overall);
 }
 async function completeLesson(lessonId,userId,button,label,progress){
@@ -93,6 +94,7 @@ async function completeLesson(lessonId,userId,button,label,progress){
     const next=progress.doneCount+1,percent=Math.round(next/progress.total*100);
     progress.progressText.textContent=percent+" %";progress.fill.style.width=percent+"%";progress.track.setAttribute("aria-valuenow",String(percent));
     progress.count.textContent=next+" leçon"+(next>1?"s":"")+" terminée"+(next>1?"s":"")+" sur "+progress.total;
+    progress.refreshOverall?.();
   }
 }
 async function loadAdminData(){const {data:courses,error}=await db.from("courses").select("id,title,slug,description,category,is_published").order("created_at",{ascending:false});const list=$("#adminCourseList"),select=$("#lessonCourse");list.innerHTML="";select.innerHTML='<option value="">Choisir un cours</option>';if(error){list.textContent="Erreur de chargement : "+error.message;return;}if(!courses?.length){list.innerHTML='<div class="admin-empty">Aucun cours pour le moment. Créez votre premier cours ci-dessus.</div>';return;}for(const course of courses){const option=document.createElement("option");option.value=course.id;option.textContent=course.title;select.append(option);const row=document.createElement("div");row.className="admin-row";const info=document.createElement("div");const title=document.createElement("strong");title.textContent=course.title;const meta=document.createElement("small");meta.textContent=(course.category||"Général")+" · "+(course.is_published?"Publié":"Brouillon");info.append(title,meta);const actions=document.createElement("div");actions.className="admin-row-actions";const toggle=document.createElement("button");toggle.textContent=course.is_published?"Dépublier":"Publier";toggle.addEventListener("click",()=>toggleCourse(course.id,!course.is_published));actions.append(toggle);row.append(info,actions);list.append(row);const {data:lessons}=await db.from("lessons").select("id,title,is_published,position").eq("course_id",course.id).order("position");if(lessons?.length){const lessonList=document.createElement("div");lessonList.className="lesson-list";for(const lesson of lessons){const line=document.createElement("div");line.className="lesson-item";const label=document.createElement("span");label.textContent=lesson.title+" · "+(lesson.is_published?"Publié":"Brouillon");const button=document.createElement("button");button.className="lesson-link";button.textContent=lesson.is_published?"Dépublier":"Publier";button.addEventListener("click",()=>toggleLesson(lesson.id,!lesson.is_published));line.append(label,button);lessonList.append(line);}list.append(lessonList);}}}
