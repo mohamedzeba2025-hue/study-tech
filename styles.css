@@ -8,3 +8,36 @@
 
 /* Metadata for dynamically loaded course cards */
 .course-meta{display:block;margin-top:12px;color:#8fa8ca;font-size:11px;font-weight:600;letter-spacing:.02em}
+
+/* Espace étudiant : cartes de cours et progression */
+.student-course-card{display:block!important;margin:16px 0;padding:20px!important;border:1px solid #1a416c;border-radius:14px;background:linear-gradient(145deg,#091b34,#061326)}
+.student-course-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.student-course-heading strong{font:800 16px var(--display);color:#f5f8ff}
+.student-course-heading small{font-size:11px;line-height:1.6;color:#91a9c9}
+.student-course-badge{flex:none;padding:6px 9px;border:1px solid #087bff66;border-radius:30px;color:#66c9ff;font-size:9px;font-weight:800;letter-spacing:.08em}
+.course-progress{margin:19px 0 20px;padding:14px;border:1px solid #17385d;border-radius:10px;background:#041126}
+.course-progress-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.course-progress-top span,.course-progress-count{font-size:10px;color:#91a9c9}
+.course-progress-top strong{font-size:13px;color:#35d5ff}
+.course-progress-track{height:7px;margin-top:10px;overflow:hidden;border-radius:20px;background:#172d4a}
+.course-progress-fill{display:block;height:100%;border-radius:20px;background:linear-gradient(90deg,#087bff,#00d7e8);transition:width .3s ease}
+.course-progress-count{display:block;margin-top:8px}
+.student-lessons h4{margin:0 0 9px;color:#dceaff;font:700 12px var(--display)}
+.student-lesson{padding:12px 0;border-top:1px solid #17385d}
+.student-lesson-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.student-lesson-title{padding-top:8px;color:#c4d6ed;font-size:11px;line-height:1.5}
+.student-lesson-title.is-complete{color:#75e2bd}
+.student-lesson-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+.student-lesson-actions .lesson-reader{margin:0;padding:0;border:0}
+.student-lesson-actions .lesson-reader summary{padding:8px 0}
+.student-lesson-actions .lesson-reader[open]{position:relative}
+.student-lesson-actions .lesson-reader-content{position:relative;min-width:min(520px,75vw);margin:8px 0;padding:14px}
+.student-empty{padding:22px;border:1px dashed #24507d;border-radius:12px;background:#07152b}
+.student-empty strong{font:800 16px var(--display)}
+.student-empty p,.student-empty-note{font-size:12px;line-height:1.7;color:#9db0cc}
+.student-explore{display:inline-block;margin-top:8px;color:#29caff;font-size:12px;font-weight:800}
+.student-overview{display:grid;grid-template-columns:1fr auto;gap:9px 16px;align-items:center;margin:0 0 20px;padding:17px;border:1px solid #1b4774;border-radius:12px;background:#071a32}
+.student-overview strong{font:800 13px var(--display)}
+.student-overview>span{font-size:11px;color:#8fa8ca}
+.student-overview .course-progress-track{grid-column:1/-1;margin-top:0}
+@media(max-width:650px){.student-course-card{padding:15px!important}.student-lesson-row{align-items:flex-start;flex-direction:column}.student-lesson-actions{width:100%;justify-content:space-between}.student-lesson-actions .lesson-reader-content{min-width:0;width:calc(100vw - 80px)}.student-overview{grid-template-columns:1fr}.student-overview>span{grid-row:2}.student-overview .course-progress-track{grid-row:3}}
