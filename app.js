@@ -22,9 +22,14 @@ async function showMember(user){if(currentUser?.id===user.id&&!$("#dashboard").h
 async function loadStudentCourses(userId){
   const target=$("#myCourses");
   target.textContent="Chargement de votre espace d’apprentissage…";
-  const {data:rows,error}=await db.from("enrollments").select("course_id,courses(id,title,description,category)").eq("user_id",userId).order("enrolled_at",{ascending:false});
-  if(error){target.textContent="Impossible de charger vos inscriptions. Réessayez dans quelques instants.";console.error("Enrollment loading failed",error);return;}
-  const enrolled=(rows||[]).filter(row=>row.courses&&TECH_CATEGORIES.includes(row.courses.category));
+  const {data:rows,error}=await db.from("enrollments").select("course_id").eq("user_id",userId).order("enrolled_at",{ascending:false});
+  if(error){target.textContent="Erreur inscriptions : "+error.message;console.error("Enrollment loading failed",error);return;}
+  const courseIds=(rows||[]).map(row=>row.course_id).filter(Boolean);
+  if(!courseIds.length){target.innerHTML='<div class="student-empty"><strong>Votre parcours commence ici.</strong><p>Vous n’êtes inscrit à aucun cours pour le moment. Explorez les formations gratuites et choisissez votre premier cours.</p><a href="#courses" class="student-explore">Découvrir les cours →</a></div>';return;}
+  const {data:courseRows,error:courseError}=await db.from("courses").select("id,title,description,category").in("id",courseIds);
+  if(courseError){target.textContent="Erreur chargement cours : "+courseError.message;console.error("Enrolled course loading failed",courseError);return;}
+  const byId=new Map((courseRows||[]).map(course=>[course.id,course]));
+  const enrolled=courseIds.map(id=>({course_id:id,courses:byId.get(id)})).filter(row=>row.courses&&TECH_CATEGORIES.includes(row.courses.category));
   if(!enrolled.length){target.innerHTML='<div class="student-empty"><strong>Votre parcours commence ici.</strong><p>Vous n’êtes inscrit à aucun cours pour le moment. Explorez les formations gratuites et choisissez votre premier cours.</p><a href="#courses" class="student-explore">Découvrir les cours →</a></div>';return;}
   target.innerHTML="";
   let totalLessons=0,totalDone=0;
